@@ -8,7 +8,7 @@ class SelfTest(EmulatorTestCase):
     # are checked through what they map into the address space.
     def test_rombank(self):
         def window():
-            return [self.e.getMemory(0xc000 + i) for i in range(32)]
+            return [self.e.getMemory(0xc000 + i) for i in range(256)]
 
         self.e.setRomBank(0)
         bank0 = window()

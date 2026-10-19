@@ -11,7 +11,6 @@ class Status:
 
 class X16TestBench:
     emu = None
-    labels = dict()
 
     """
     Class constructor.
@@ -24,6 +23,7 @@ class X16TestBench:
         FileNotFoundError: Happens if emulatorpath not valid
     """
     def __init__(self, emulatorpath, emulatoroptions=[]):
+        self.labels = dict()
         path = [emulatorpath, "-testbench"]
         for o in emulatoroptions:
             path.append(o)

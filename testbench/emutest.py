@@ -20,7 +20,7 @@ class EmulatorTestCase(unittest.TestCase):
     options = ["-warp"]
 
     def setUp(self):
-        if not os.access(emulator_path(), os.X_OK):
+        if not os.path.isfile(emulator_path()) or not os.access(emulator_path(), os.X_OK):
             self.skipTest("emulator not found: " + emulator_path() + " (build it or set X16EMU)")
         if not os.path.isfile(rom_path()):
             self.skipTest("ROM not found: " + rom_path() + " (set X16_ROM)")

@@ -60,7 +60,7 @@ Type `make` to build the source. The output will be `x16emu` in the current dire
 
 ### Tests
 
-`ctest` in the build directory (`cd build && ctest --output-on-failure`) runs the Python tests in `testbench/` against the built emulator in `-testbench` mode. They need a `rom.bin` (in the repository root, or set `X16_ROM`); without one they are skipped. To run them directly: `cd testbench && X16EMU=../build/x16emu python3 -m unittest selftest example cpu_test`.
+Build the emulator first (`ctest` does not build it), then run `cd build && ctest --output-on-failure`. This runs the Python tests in `testbench/` against the built emulator in `-testbench` mode. They need a `rom.bin` (in the repository root, or set `X16_ROM`); without one ctest reports the test as skipped. To run them directly: `cd testbench && X16EMU=../build/x16emu python3 -m unittest selftest example cpu_test`.
 
 ### WebAssembly Build
 

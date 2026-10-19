@@ -333,15 +333,16 @@ endif()
 
 # --- Tests: `ctest` in the build directory runs the testbench suite (testbench/*.py) ---
 # It boots the built emulator headless; needs a rom.bin (./rom.bin, or X16_ROM in the environment).
-# Without one the tests are skipped.
+# Without one the tests are skipped (run_tests.py exits with 77; a failure is never reported as skipped).
+# Build x16emu first, ctest does not build it.
 if(NOT EMSCRIPTEN AND NOT WIN32)
     enable_testing()
     add_test(NAME testbench
-        COMMAND ${Python3_EXECUTABLE} -m unittest selftest example cpu_test
+        COMMAND ${Python3_EXECUTABLE} run_tests.py
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/testbench)
     set_tests_properties(testbench PROPERTIES
         ENVIRONMENT "X16EMU=$<TARGET_FILE:x16emu>"
-        SKIP_REGULAR_EXPRESSION "skipped=")
+        SKIP_RETURN_CODE 77)
 endif()
 
 # Build summary

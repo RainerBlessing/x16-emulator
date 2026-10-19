@@ -86,21 +86,23 @@ class CpuTest(EmulatorTestCase):
         self.assertEqual(self.e.getStatus() & Status.Z, 0)      # 0x0f & 0xff != 0
 
     def test_indirect_indexed_y(self):
-        self.e.setMemory(0x10, 0x00)
-        self.e.setMemory(0x11, 0x61)
+        self.e.setMemory(0x30, 0x00)
+        self.e.setMemory(0x31, 0x61)
+        self.e.setMemory(0x6100, 0xee)   # must not be read
         self.e.setMemory(0x6103, 0x99)
         self.e.setY(3)
-        self.runCode([0xb1, 0x10,        # lda ($10),y
+        self.runCode([0xb1, 0x30,        # lda ($30),y
                       0x60])
         self.assertEqual(self.e.getA(), 0x99)
 
     def test_zeropage_indirect_without_index(self):
         # lda (zp) is a 65C02 addition
-        self.e.setMemory(0x10, 0x00)
-        self.e.setMemory(0x11, 0x61)
+        self.e.setMemory(0x30, 0x00)
+        self.e.setMemory(0x31, 0x61)
         self.e.setMemory(0x6100, 0x42)
-        self.e.setY(3)                   # must not be added
-        self.runCode([0xb2, 0x10,        # lda ($10)
+        self.e.setMemory(0x6103, 0xee)   # what is read if Y is added by mistake
+        self.e.setY(3)
+        self.runCode([0xb2, 0x30,        # lda ($30)
                       0x60])
         self.assertEqual(self.e.getA(), 0x42)
 
@@ -134,7 +136,15 @@ class BankedRamTest(EmulatorTestCase):
     def test_code_runs_from_selected_bank(self):
         self.e.setRamBank(3)
         self.runCode([0xa9, 0x77, 0x60], 0xa000)      # lda #$77, rts
+        self.e.setRamBank(4)
+        self.runCode([0xa9, 0x88, 0x60], 0xa000)      # lda #$88, rts
+
+        self.e.setRamBank(3)
+        self.e.run(0xa000)
         self.assertEqual(self.e.getA(), 0x77)
+        self.e.setRamBank(4)
+        self.e.run(0xa000)
+        self.assertEqual(self.e.getA(), 0x88)
 
 if __name__ == '__main__':
     unittest.main()
