@@ -8,7 +8,7 @@ Follow installation steps from [here](https://emscripten.org/docs/getting_starte
 
 ## Build
 
-Activate the SDK (`source /path/to/emsdk/emsdk_env.sh`), then:
+With Emscripten installed and `emcmake` on your `PATH` (when using emsdk, see its `emsdk_env` script):
 
     make wasm                      # bundles ./rom.bin
     make wasm X16_ROM=/path/to/rom.bin
