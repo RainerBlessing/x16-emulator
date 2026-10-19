@@ -331,6 +331,19 @@ if(EMSCRIPTEN)
     target_link_options(makecart PRIVATE "SHELL:-s USE_ZLIB=1")
 endif()
 
+# --- Tests: `ctest` in the build directory runs the testbench suite (testbench/*.py) ---
+# It boots the built emulator headless; needs a rom.bin (./rom.bin, or X16_ROM in the environment).
+# Without one the tests are skipped.
+if(NOT EMSCRIPTEN AND NOT WIN32)
+    enable_testing()
+    add_test(NAME testbench
+        COMMAND ${Python3_EXECUTABLE} -m unittest selftest example cpu_test
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/testbench)
+    set_tests_properties(testbench PROPERTIES
+        ENVIRONMENT "X16EMU=$<TARGET_FILE:x16emu>"
+        SKIP_REGULAR_EXPRESSION "skipped=")
+endif()
+
 # Build summary
 
 if(ENABLE_FLUIDSYNTH STREQUAL "AUTO" AND NOT USE_FLUIDSYNTH)
