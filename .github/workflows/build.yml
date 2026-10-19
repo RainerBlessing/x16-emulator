@@ -531,21 +531,11 @@ jobs:
         run: |
           cp latest_rom/*.h src/.
       - name: Build Emulator
-        run: |
-          mkdir build
-          cp latest_rom/rom.bin build
-          cd build
-          emcmake cmake .. -DENABLE_FLUIDSYNTH=OFF -DENABLE_TRACE=OFF
-          emmake make
+        run: make wasm X16_ROM=latest_rom/rom.bin
       - name: Package Emulator
-        run: |
-          mkdir emu_binaries
-          cp build/x16emu.data build/x16emu.html build/x16emu.js build/x16emu.wasm emu_binaries/
-          mkdir emu_binaries/webassembly
-          cp webassembly/styles.css webassembly/main.js webassembly/jszip.min.js emu_binaries/webassembly/
-          file emu_binaries/*
+        run: file build-wasm/emu_binaries/*
       - uses: actions/upload-artifact@v4
         with:
           name: x16emu_wasm
-          path: emu_binaries/*
+          path: build-wasm/emu_binaries/*
 

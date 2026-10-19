@@ -287,10 +287,17 @@ endif()
 
 # Emscripten
 if(EMSCRIPTEN)
-    set_target_properties(x16emu PROPERTIES SUFFIX ".html")
+    # ROM image bundled into x16emu.data; the emulator opens "rom.bin" relative to the VFS root.
+    set(X16_ROM "${CMAKE_BINARY_DIR}/rom.bin" CACHE FILEPATH "rom.bin to bundle into the wasm build")
+    if(NOT EXISTS "${X16_ROM}")
+        message(FATAL_ERROR "[x16] ROM not found: ${X16_ROM} (pass -DX16_ROM=<path to rom.bin>)")
+    endif()
+
+    set_target_properties(x16emu PROPERTIES SUFFIX ".html"
+        LINK_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/webassembly/x16emu-template.html;${X16_ROM}")
     target_link_options(x16emu PRIVATE
         --shell-file ${CMAKE_CURRENT_SOURCE_DIR}/webassembly/x16emu-template.html
-        --preload-file ${CMAKE_CURRENT_SOURCE_DIR}/build/rom.bin
+        --preload-file ${X16_ROM}@/rom.bin
         "SHELL:-s TOTAL_MEMORY=32MB"
         "SHELL:-s ASSERTIONS=1"
         "SHELL:-s DISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR=1"
@@ -298,6 +305,24 @@ if(EMSCRIPTEN)
         "SHELL:-s EXPORTED_RUNTIME_METHODS=['ccall','cwrap']"
         "SHELL:-s USE_ZLIB=1"
         "SHELL:-s EXIT_RUNTIME=1"
+    )
+
+    # Collect the deployable files in <build>/emu_binaries (upload as-is to a web server).
+    set(WASM_OUT "$<TARGET_FILE_DIR:x16emu>/emu_binaries")
+    add_custom_command(TARGET x16emu POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${WASM_OUT}/webassembly"
+        COMMAND ${CMAKE_COMMAND} -E copy
+            "$<TARGET_FILE_DIR:x16emu>/x16emu.html"
+            "$<TARGET_FILE_DIR:x16emu>/x16emu.js"
+            "$<TARGET_FILE_DIR:x16emu>/x16emu.wasm"
+            "$<TARGET_FILE_DIR:x16emu>/x16emu.data"
+            "${WASM_OUT}"
+        COMMAND ${CMAKE_COMMAND} -E copy
+            "${CMAKE_CURRENT_SOURCE_DIR}/webassembly/styles.css"
+            "${CMAKE_CURRENT_SOURCE_DIR}/webassembly/main.js"
+            "${CMAKE_CURRENT_SOURCE_DIR}/webassembly/jszip.min.js"
+            "${WASM_OUT}/webassembly"
+        COMMENT "Packaging wasm artifacts into ${WASM_OUT}"
     )
 endif()
 

@@ -8,19 +8,21 @@ Follow installation steps from [here](https://emscripten.org/docs/getting_starte
 
 ## Build
 
-    make wasm
+Activate the SDK (`source /path/to/emsdk/emsdk_env.sh`), then:
 
-This outputs the following artifacts in the build directory, which can be uploaded to any web server.
+    make wasm                      # bundles ./rom.bin
+    make wasm X16_ROM=/path/to/rom.bin
 
-	ex16mu.data x16emu.html x16emu.js x16mu.wasm webassembly/styles.css webassembly/main.js
+The system ROM (rom.bin) can be built from the [X16 ROM source](https://github.com/X16Community/x16-rom) or taken from its latest release. The ROM is bundled into `x16emu.data`; the build fails if it is not found.
 
-You will also need the system ROM (rom.bin) which you can build from the [X16 ROM source](https://github.com/commanderx16/x16-rom) or take from the latest [binary release](https://github.com/commanderx16/x16-emulator/releases).
-(It is not always guaranteed though that the latest binary release is compatible with the current state of the emulator source.)
+Everything that can be uploaded to a web server is collected in `build-wasm/emu_binaries/`:
+
+	x16emu.data x16emu.html x16emu.js x16emu.wasm webassembly/styles.css webassembly/main.js webassembly/jszip.min.js
 
 ### Testing
 To run a test webserver:
 
-    python -m SimpleHTTPServer 8080
+    python3 -m http.server 8080 -d build-wasm/emu_binaries
 
 And start [http://localhost:8080/x16emu.html](http://localhost:8080/x16emu.html)
 
